@@ -1,7 +1,7 @@
 const { resolve: resolvePath } = require("path");
 const { createSyncFn } = require("synckit");
-const { default: BT } = require("babel-jest");
 const { log } = require("./file-logger.js");
+const { getBabelTransformer } = require("./get-babel-transformer.js");
 
 const transformSync = createSyncFn(resolvePath(__dirname, "./vite-worker.js"));
 
@@ -19,7 +19,7 @@ const transformer = {
       throw step1.error;
     }
     step1.value.code = fixImports(step1.value.code, options);
-    const babelTransformer = BT.createTransformer({
+    const babelTransformer = getBabelTransformer({
       inputSourceMap: step1.value.map,
     });
     const step2 = babelTransformer.process(step1.value.code, filename, options);
