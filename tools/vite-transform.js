@@ -18,7 +18,7 @@ const transformer = {
     if (!step1.ok) {
       throw step1.error;
     }
-    step1.value.code = fixImports(step1.value.code);
+    step1.value.code = fixImports(step1.value.code, options);
     const babelTransformer = BT.createTransformer({
       inputSourceMap: step1.value.map,
     });
@@ -31,8 +31,11 @@ module.exports = transformer;
 
 // TODO: looks like there are more edge cases
 // https://github.com/sodatea/vite-jest/blob/6cb71219d13dfced3dbb0a2a6df3e437d80d9849/packages/vite-jest/index.js#L41-L68
-function fixImports(code) {
+function fixImports(code, options) {
   // import {} from '/src/utils/add.ts'
   // resolve it from project root
-  return code.replace(/from \"\//g, `from "${options.config.rootDir}/`);
+  return code
+    .replace(/from \"\//g, `from "${options.config.rootDir}/`)
+    .replace(/import.meta.env =/g, "var import_meta_env =")
+    .replace(/import.meta.env/g, "import_meta_env");
 }
