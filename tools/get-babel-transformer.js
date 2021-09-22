@@ -14,6 +14,8 @@ function getBabelTransformer({ inputSourceMap, rootPath }) {
         require.resolve("babel-plugin-module-resolver"),
         {
           alias: {
+            "/@vite/client": "vite/dist/client/client.mjs",
+            "/@vite/env": "vite/dist/client/env.mjs",
             "": rootPath,
           },
         },
