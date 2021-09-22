@@ -1,8 +1,10 @@
 const { resolve: resolvePath } = require("path");
 const { createSyncFn } = require("synckit");
-const { getBabelTransformer } = require("./get-babel-transformer.js");
+const { getBabelTransformer } = require("./babel/get-babel-transformer.js");
 
-const transformSync = createSyncFn(resolvePath(__dirname, "./vite-worker.js"));
+const transformSync = createSyncFn(
+  resolvePath(__dirname, "./vite/vite-worker.js")
+);
 function matchFile(filename, reStrings) {
   for (const reStr of reStrings) {
     const re = new RegExp(reStr);

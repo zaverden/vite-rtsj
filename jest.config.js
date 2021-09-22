@@ -174,11 +174,11 @@ module.exports = {
   // A map from regular expressions to paths to transformers
   transform: {
     "node_modules/vite/dist/client/(client|env)\\.mjs$": [
-      "<rootDir>/tools/vite-transform.js",
+      "<rootDir>/jest-vite/transform.js",
       {},
     ],
     "\\.tsx?$": [
-      "<rootDir>/tools/vite-transform.js",
+      "<rootDir>/jest-vite/transform.js",
       {
         printTransformationFor: ["meta.test.ts"],
       },
