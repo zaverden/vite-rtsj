@@ -45,6 +45,7 @@ const transformer = {
     const babelTransformer = getBabelTransformer({
       inputSourceMap: step1.value.map,
       rootPath: options.config.rootDir,
+      base: step1.config.base,
     });
     const step2 = babelTransformer.process(step1.value.code, filename, options);
     if (shouldPrint) {

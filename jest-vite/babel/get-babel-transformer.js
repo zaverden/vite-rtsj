@@ -4,7 +4,8 @@ const { viteMetaTransformPlugin } = require("./transform-vite-meta");
 /**
  * @param {GetOptions} options
  */
-function getBabelTransformer({ inputSourceMap, rootPath }) {
+function getBabelTransformer({ inputSourceMap, rootPath, base }) {
+  const aliasPrefix = base.endsWith("/") ? base.slice(0, -1) : base;
   const babelTransformer = BT.createTransformer({
     inputSourceMap,
     configFile: false,
@@ -14,9 +15,9 @@ function getBabelTransformer({ inputSourceMap, rootPath }) {
         require.resolve("babel-plugin-module-resolver"),
         {
           alias: {
-            "/@vite/client": "vite/dist/client/client.mjs",
-            "/@vite/env": "vite/dist/client/env.mjs",
-            "": rootPath,
+            [`${aliasPrefix}/@vite/client`]: "vite/dist/client/client.mjs",
+            [`${aliasPrefix}/@vite/env`]: "vite/dist/client/env.mjs",
+            [`${aliasPrefix}`]: rootPath,
           },
         },
       ],

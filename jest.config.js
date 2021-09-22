@@ -180,7 +180,7 @@ module.exports = {
     "\\.tsx?$": [
       "<rootDir>/jest-vite/transform.js",
       {
-        printTransformationFor: ["meta.test.ts"],
+        printTransformationFor: ["add.test.ts"],
       },
     ],
   },
