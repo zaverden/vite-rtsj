@@ -1,20 +1,21 @@
 const IMPORT_META_ENV_NAME = "__IMPORT_META_ENV";
+const IMPORT_META_HOT_NAME = "__IMPORT_META_HOT";
 
-function getImportMetaEnvPath(path, t) {
+function getImportMetaPropPath({ path, property, t }) {
   const isImportMeta =
     t.isIdentifier(path.node.meta, { name: "import" }) &&
     t.isIdentifier(path.node.property, { name: "meta" });
 
-  const isImportMetaEnv =
+  const isImportMetaProp =
     isImportMeta &&
     t.isMemberExpression(path.parent, { object: path.node }) &&
-    t.isIdentifier(path.parent.property, { name: "env" });
+    t.isIdentifier(path.parent.property, { name: property });
 
-  return isImportMetaEnv ? path.parentPath : undefined;
+  return isImportMetaProp ? path.parentPath : undefined;
 }
 
-function getImportMetaEnvAssignmentPath(path, t) {
-  const importMetaEnvPath = getImportMetaEnvPath(path, t);
+function getImportMetaPropAssignmentPath({ path, property, t }) {
+  const importMetaEnvPath = getImportMetaPropPath({ path, property, t });
   if (importMetaEnvPath === undefined) {
     return undefined;
   }
@@ -30,32 +31,69 @@ function getImportMetaEnvAssignmentPath(path, t) {
   return isImportMetaEnvAssignment ? path.parentPath.parentPath : undefined;
 }
 
+function replaceImportMetaUsageWithVariable({ property, identifier, path, t }) {
+  const importMetaPropPath = getImportMetaPropPath({ path, property, t });
+  if (importMetaPropPath !== undefined) {
+    importMetaPropPath.replaceWith(identifier);
+  }
+}
+
+function replaceImportMetaAssignmentWithVariable({
+  property,
+  identifier,
+  path,
+  t,
+}) {
+  const importMetaEnvAssignmentPath = getImportMetaPropAssignmentPath({
+    property,
+    path,
+    t,
+  });
+  if (importMetaEnvAssignmentPath !== undefined) {
+    const { right } = importMetaEnvAssignmentPath.node;
+    const importMetaEnvDeclaration = t.variableDeclaration("const", [
+      t.variableDeclarator(identifier, right),
+    ]);
+    importMetaEnvAssignmentPath.parentPath.replaceWith(
+      importMetaEnvDeclaration
+    );
+  }
+}
+
 /** @param {babelCore} options */
 function viteMetaTransformPlugin({ types: t }) {
   const IMPORT_META_ENV_IDENTIFIER = t.identifier(IMPORT_META_ENV_NAME);
+  const IMPORT_META_HOT_IDENTIFIER = t.identifier(IMPORT_META_HOT_NAME);
   /** @type {PluginObj} */
   const plugin = {
     name: "vite-meta",
     visitor: {
       MetaProperty(path) {
-        const importMetaEnvAssignmentPath = getImportMetaEnvAssignmentPath(
+        replaceImportMetaAssignmentWithVariable({
+          property: "env",
+          identifier: IMPORT_META_ENV_IDENTIFIER,
           path,
-          t
-        );
-        if (importMetaEnvAssignmentPath !== undefined) {
-          const { right } = importMetaEnvAssignmentPath.node;
-          const importMetaEnvDeclaration = t.variableDeclaration("const", [
-            t.variableDeclarator(IMPORT_META_ENV_IDENTIFIER, right),
-          ]);
-          importMetaEnvAssignmentPath.parentPath.replaceWith(
-            importMetaEnvDeclaration
-          );
-        }
+          t,
+        });
+        replaceImportMetaUsageWithVariable({
+          property: "env",
+          identifier: IMPORT_META_ENV_IDENTIFIER,
+          path,
+          t,
+        });
 
-        const importMetaEnvPath = getImportMetaEnvPath(path, t);
-        if (importMetaEnvPath !== undefined) {
-          importMetaEnvPath.replaceWith(IMPORT_META_ENV_IDENTIFIER);
-        }
+        replaceImportMetaAssignmentWithVariable({
+          property: "hot",
+          identifier: IMPORT_META_HOT_IDENTIFIER,
+          path,
+          t,
+        });
+        replaceImportMetaUsageWithVariable({
+          property: "hot",
+          identifier: IMPORT_META_HOT_IDENTIFIER,
+          path,
+          t,
+        });
       },
     },
   };

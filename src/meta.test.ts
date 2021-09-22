@@ -8,6 +8,6 @@ describe("vite meta", () => {
     expect(import.meta.url).toMatch(/^file:\/\/(.*)meta.test.ts$/);
   });
   it("should work with hot", () => {
-    expect(import.meta.hot).toBeUndefined();
+    expect(import.meta.hot).toMatchObject({ accept: expect.any(Function) });
   });
 });

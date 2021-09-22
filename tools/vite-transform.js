@@ -17,7 +17,7 @@ function matchFile(filename, reStrings) {
 const transformer = {
   canInstrument: true,
   process(src, filename, options) {
-    const { printTransformationFor = [] } = options.transformerConfig;
+    const { printTransformationFor = [] } = options.transformerConfig ?? {};
     const shouldPrint = matchFile(filename, printTransformationFor);
     if (shouldPrint) {
       console.warn({
