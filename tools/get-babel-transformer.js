@@ -1,4 +1,5 @@
 const { default: BT } = require("babel-jest");
+const { viteMetaTransformPlugin } = require("./transform-vite-meta");
 
 /**
  * @param {GetOptions} options
@@ -18,6 +19,8 @@ function getBabelTransformer({ inputSourceMap, rootPath }) {
         },
       ],
       [require.resolve("@babel/plugin-transform-modules-commonjs"), {}],
+      [require.resolve("babel-plugin-transform-import-meta"), {}],
+      viteMetaTransformPlugin,
     ],
   });
   return babelTransformer;
