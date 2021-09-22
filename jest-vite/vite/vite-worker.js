@@ -12,7 +12,13 @@ const { runAsWorker } = require("synckit");
   runAsWorker(async (url, options) => {
     try {
       const r = await viteServer.transformRequest(url, options);
-      return { ok: true, value: r };
+      return {
+        ok: true,
+        value: r,
+        config: {
+          base: viteServer.config.base,
+        },
+      };
     } catch (error) {
       return {
         ok: false,
